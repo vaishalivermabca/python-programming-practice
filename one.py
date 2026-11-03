@@ -1,61 +1,75 @@
-# Product Recommendation System - PS No. 85
+from collections import Counter
 
-# Customer purchase history
-customers = {
-    "Amit": ["Laptop", "Mouse", "Keyboard"],
-    "Bina": ["Laptop", "Mouse", "Headphones"],
-    "Chetan": ["Mobile", "Charger"],
-    "Divya": ["Laptop", "Keyboard", "Headphones"]
+# Purchases stored as a dictionary of lists
+purchases = {
+    "Amit":   ["Laptop", "Mouse", "Keyboard"],
+    "Bina":   ["Laptop", "Mouse", "Headphones"],
+    "Chetan": ["Phone", "Charger"],
+    "Divya":  ["Laptop", "Keyboard", "Monitor", "Webcam"],
 }
 
-def jaccard_similarity(list1, list2):
-    set1 = set(list1)
-    set2 = set(list2)
-    if len(set1.union(set2)) == 0:
-        return 0
-    return len(set1.intersection(set2)) / len(set1.union(set2))
 
-# Input from user
-name = input("Enter customer name: ").strip()
+def jaccard_similarity(list_a, list_b):
+    """Jaccard = |A ∩ B| / |A ∪ B|"""
+    set_a, set_b = set(list_a), set(list_b)
+    union = set_a | set_b
+    if not union:
+        return 0.0
+    return len(set_a & set_b) / len(union)
 
-# Validation
-if name == "":
-    print("Name cannot be empty")
-else:
-    if name not in customers:
-        print(f"Customer {name} not found")
-        # Show popular product if not found
-        all_products = []
-        for products in customers.values():
-            all_products.extend(products)
-        popular = max(set(all_products), key=all_products.count)
-        print(f"Popular product: {popular}")
-    else:
-        current_user_products = customers[name]
-        max_similarity = 0
-        most_similar_user = None
 
-        # Find most similar customer
-        for other_name, other_products in customers.items():
-            if other_name != name:
-                similarity = jaccard_similarity(current_user_products, other_products)
-                if similarity > max_similarity:
-                    max_similarity = similarity
-                    most_similar_user = other_name
-        
-        if most_similar_user:
-            print(f"Most similar customer: {most_similar_user}")
-            # Recommend product not already bought
-            similar_user_products = customers[most_similar_user]
-            recommendation = None
-            for product in similar_user_products:
-                if product not in current_user_products:
-                    recommendation = product
-                    break
-            
-            if recommendation:
-                print(f"Recommended: {recommendation}")
-            else:
-                print("No new product to recommend")
-        else:
-            print("No similar customer found")
+def find_customer(name):
+    """Case-insensitive lookup; returns the stored name or None."""
+    for customer in purchases:
+        if customer.lower() == name.lower():
+            return customer
+    return None
+
+
+def recommend(name):
+    name = name.strip()
+
+    # Invalid input handling
+    if name == "":
+        print("Name cannot be empty.")
+        return
+    customer = find_customer(name)
+    if customer is None:
+        print(f"Customer '{name}' not found.")
+        return
+
+    # Calculate similarity with every other customer
+    scores = {}
+    for other, items in purchases.items():
+        if other != customer:
+            scores[other] = jaccard_similarity(purchases[customer], items)
+
+    # Show scores, highest first
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    best_name, best_score = sorted_scores[0]
+
+    if best_score == 0:
+        # Boundary case: nobody is similar
+        print("No similar customers found.")
+        all_items = [item for items in purchases.values() for item in items]
+        product, count = Counter(all_items).most_common(1)[0]
+        print(f"Popular product: {product} (bought by {count} customers)")
+        return
+
+    print("Similarity scores:")
+    for other, score in sorted_scores:
+        print(f"{other} : {score:.2f}")
+    print(f"Most similar customer: {best_name}")
+
+    # Recommend what the similar customer has but this customer doesn't
+    recommended = [p for p in purchases[best_name] if p not in purchases[customer]]
+    print("Recommended: " + ", ".join(recommended))
+
+
+def main():
+    name = input("Recommend for: ")
+    recommend(name)
+
+
+if __name__ == "__main__":
+    main()
