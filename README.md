@@ -22,12 +22,6 @@ Recommend products using Jaccard similarity (common products / all different pro
 product_recommendation/
 ├── recommend.py
 ├── README.md
-└── screenshots/
-    ├── test1.png
-    ├── test2.png
-    ├── test3a.png
-    ├── test3b.png
-    └── test4.png
 ```
 
 ## 🗃️ Sample Data
@@ -104,16 +98,6 @@ Chetan : 0.00
 Most similar customer: Amit
 Recommended: Keyboard
 ```
-
-## 📸 Screenshots
-
-| Test Case 1 | Test Case 2 |
-|---|---|
-| ![Test 1](screenshots/test1.png) | ![Test 2](screenshots/test2.png) |
-
-| Test Case 3 | Test Case 4 |
-|---|---|
-| ![Test 3](screenshots/test3a.png) | ![Test 4](screenshots/test4.png) |
 
 ## 🎯 Features
 
